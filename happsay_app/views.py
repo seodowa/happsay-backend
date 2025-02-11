@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets            # type: ignore
 from .serializers import UserSerializer, TodoListSerializer
 from django.contrib.auth.models import User
 from .models import TodoList

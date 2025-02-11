@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from .models import TodoList
-from rest_framework import serializers
+from rest_framework import serializers # type: ignore
 
 
 class TodoListSerializer(serializers.ModelSerializer):
