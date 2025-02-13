@@ -3,6 +3,7 @@ from .models import TodoList
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.utils.timezone import make_aware
+from rest_framework.test import APITestCase 
 
 # Create your tests here.
 
@@ -37,3 +38,20 @@ class TodoListModelTest(TestCase):
         self.todo.delete()
         with self.assertRaises(TodoList.DoesNotExist):
             TodoList.objects.get(user=self.user)
+
+
+        
+class LoginTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='testpass123')
+
+
+    def test_valid_login(self):
+        response = self.client.post('/login/', {'username': 'testuser', 'password': 'testpass123'})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('access', response.data)  # Match your response structure
+
+
+    def test_invalid_login(self):
+        response = self.client.post('/login/', {'username': 'wrong', 'password': 'wrong'})
+        self.assertEqual(response.status_code, 400)

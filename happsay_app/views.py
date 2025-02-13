@@ -1,9 +1,11 @@
-from .serializers import UserSerializer, TodoListSerializer, UserRegistrationSerializer
+from .serializers import UserSerializer, TodoListSerializer, UserRegistrationSerializer, LoginSerializer
 from .models import TodoList
 from django.contrib.auth.models import User
 from django.shortcuts import render
+from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import permissions, viewsets, status           
 
 
@@ -16,7 +18,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
 
 
 class TodoListViewSet(viewsets.ModelViewSet):
@@ -24,7 +26,7 @@ class TodoListViewSet(viewsets.ModelViewSet):
     serializer_class = TodoListSerializer
 
 
-class RegisterUser(APIView):
+class RegisterAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
@@ -35,3 +37,22 @@ class RegisterUser(APIView):
             return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class LoginAPIView(APIView):
+        def post(self, request):
+            serializer = LoginSerializer(data=request.data, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+
+            user = serializer.validated_data['user']
+        
+            refresh = RefreshToken.for_user(user)
+
+            return Response({
+                "user": {
+                    "id": user.id,
+                    "username": user.username
+                },
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            }, status=status.HTTP_200_OK)
