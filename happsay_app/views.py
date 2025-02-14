@@ -1,4 +1,4 @@
-from .serializers import UserSerializer, TodoListSerializer, UserRegistrationSerializer, LoginSerializer
+from .serializers import UserSerializer, TodoListSerializer, UserRegistrationSerializer, LoginSerializer, UpdateUserCredentialsSerializer
 from .models import TodoList
 from django.contrib.auth.models import User
 from django.shortcuts import render
@@ -56,3 +56,19 @@ class LoginAPIView(APIView):
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
             }, status=status.HTTP_200_OK)
+
+# NEEDS FIXING
+class UpdateUserCredentialsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request):
+        user = request.user
+        serializer = UpdateUserCredentialsSerializer(user, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "message": "User credentials updated successfully"},
+                status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

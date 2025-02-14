@@ -75,3 +75,31 @@ class LoginSerializer(serializers.Serializer):
         attrs['user'] = user
 
         return attrs
+
+# NEEDS FIXING  
+class UpdateUserCredentialsSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    password2 = serializers.CharField(write_only=True)
+    
+    class Meta:
+        model = User
+        fields = ['username', 'password', 'password2']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'password2': {'write_only': True}
+        }
+    
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+
+
+    def update(self, instance, validated_data):
+        if 'username' in validated_data:
+            instance.username = validated_data.get('username', instance.username)
+        
+        if 'password' in validated_data:
+            instance.set_password(validated_data.get('password'))
+        instance.save()
+
+        return instance 

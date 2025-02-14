@@ -34,4 +34,5 @@ urlpatterns = [
     path('register/', views.RegisterAPIView.as_view()),
     path('login/', views.LoginAPIView.as_view(), name='login'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('update_credentials/', views.UpdateUserCredentialsView.as_view(), name='update_credentials'),
 ]
