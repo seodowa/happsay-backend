@@ -1,6 +1,6 @@
 from .models import TodoList
 from django.contrib.auth import authenticate
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password 
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
@@ -52,7 +52,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],
-            password=make_password(validated_data['password'])
+            password=validated_data['password']
         )
         return user
     
