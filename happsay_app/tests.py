@@ -55,3 +55,22 @@ class LoginTests(APITestCase):
     def test_invalid_login(self):
         response = self.client.post('/login/', {'username': 'wrong', 'password': 'wrong'})
         self.assertEqual(response.status_code, 400)
+
+
+class RegistrationTests(APITestCase):
+    def test_valid_registration(self):
+        response = self.client.post('/register/', {'username': 'testuser', 'password': 'testpass123',
+                                                    'password2': 'testpass123'})
+        self.assertEqual(response.status_code, 201)
+
+    
+    def test_invalid_registration(self):
+        response = self.client.post('/register/', {'username': 'testuser', 'password': 'testpass123'})
+        self.assertEqual(response.status_code, 400)
+        response = self.client.post('/register/', {'username': 'testuser', 'password': 'testpass123',
+                                                    'password2': 'wrong'})
+        self.assertEqual(response.status_code, 400)
+
+
+
+                                                   
