@@ -1,3 +1,4 @@
+from django.http import HttpResponseRedirect
 from .serializers import UserSerializer, TodoListSerializer, UserRegistrationSerializer, LoginSerializer
 from .models import TodoList
 from django.contrib.auth import authenticate, login
@@ -39,10 +40,6 @@ class TodoListViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows todo lists to be viewed or edited.
     """
-    @method_decorator(login_required(login_url='/login/'))
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-    
     serializer_class = TodoListSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -69,8 +66,7 @@ class RegisterAPIView(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            return redirect("/login/")
-            #Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+            return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -79,6 +75,9 @@ class LoginAPIView(APIView):
     """
     API endpoint that allows users to log in.
     """
+    http_method_names = ['post']
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request):
         """
         Handle POST requests for user login.
@@ -90,15 +89,15 @@ class LoginAPIView(APIView):
         login(request, user)
         refresh = RefreshToken.for_user(user)
 
-        response = Response({
+        return Response({
             "user": {
                 "id": user.id,
                 "username": user.username,
                 "email": user.email
             },
             "refresh": str(refresh),
-            "access": str(refresh.access_token)
+            "access": str(refresh.access_token),
+            "redirect_url": "/todolist/"
         }, status=status.HTTP_200_OK)
-        response['Location'] = f"/todolist/{user.id}/"
-        return response
+
 
