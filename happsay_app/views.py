@@ -1,7 +1,10 @@
 from .serializers import UserSerializer, TodoListSerializer, UserRegistrationSerializer, LoginSerializer
 from .models import TodoList
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.shortcuts import redirect, render
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -32,14 +35,24 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return Response({"message": "Update successful"}, status=status.HTTP_200_OK)
 
-
 class TodoListViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows todo lists to be viewed or edited.
     """
-    queryset = TodoList.objects.all()
+    @method_decorator(login_required(login_url='/login/'))
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+    
     serializer_class = TodoListSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        """
+        This view should return a list of all the todo lists
+        for the currently authenticated user.
+        """
+        user = self.request.user
+        return TodoList.objects.filter(user=user)
 
 
 class RegisterAPIView(APIView):
@@ -56,7 +69,8 @@ class RegisterAPIView(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+            return redirect("/login/")
+            #Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -73,15 +87,18 @@ class LoginAPIView(APIView):
         serializer.is_valid(raise_exception=True)
 
         user = serializer.validated_data['user']
-    
+        login(request, user)
         refresh = RefreshToken.for_user(user)
 
-        return Response({
+        response = Response({
             "user": {
                 "id": user.id,
-                "username": user.username
+                "username": user.username,
+                "email": user.email
             },
             "refresh": str(refresh),
-            "access": str(refresh.access_token),
+            "access": str(refresh.access_token)
         }, status=status.HTTP_200_OK)
+        response['Location'] = f"/todolist/{user.id}/"
+        return response
 

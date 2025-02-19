@@ -24,7 +24,7 @@ from happsay_app import views
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
-router.register(r'todolist', views.TodoListViewSet)
+router.register(r'todolist', views.TodoListViewSet, basename='todolist')
 
 
 urlpatterns = [

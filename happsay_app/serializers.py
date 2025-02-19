@@ -3,13 +3,23 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password 
 from django.contrib.auth.models import User
 from rest_framework import serializers
+import re
 
 class UserValidationMixin:
     def validate(self, attrs):
         # Trim username and password fields
         attrs['username'] = attrs['username'].strip()
+        attrs['email'] = attrs['email'].strip()
         attrs['password'] = attrs['password'].strip()
         attrs['password2'] = attrs['password2'].strip()
+
+        email_regex = re.compile(
+        r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        )
+
+        # email validation
+        if not email_regex.match(attrs['email']):
+            raise serializers.ValidationError({"email": "Please enter a valid email address."})
 
         # Ensure password and password2 match
         if attrs['password'] != attrs['password2']:
@@ -20,17 +30,22 @@ class UserValidationMixin:
 class TodoListSerializer(serializers.ModelSerializer):
     class Meta:
         model = TodoList
-        fields = "__all__"
+        fields = ['id', 'title', 'content', 'is_done', 'is_archived', 'deadline']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        return TodoList.objects.create(user=user, **validated_data)
 
 
 class UserSerializer(serializers.ModelSerializer, UserValidationMixin):
     username = serializers.CharField(max_length=150, allow_blank=True)
+    email = serializers.EmailField(allow_blank=True)
     password = serializers.CharField(write_only=True, allow_blank=True, style={'input_type': 'password'})
     password2 = serializers.CharField(write_only=True, allow_blank=True, style={'input_type': 'password'})
     
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'password2']
+        fields = ['id', 'username', 'email', 'password', 'password2']
 
     def validate(self, attrs):
         # Call the validate method from UserValidationMixin
@@ -49,6 +64,11 @@ class UserSerializer(serializers.ModelSerializer, UserValidationMixin):
                 validated_data.pop('username')
             instance.username = validated_data.get('username', instance.username)
         
+        if 'email' in validated_data:
+            if validated_data['email'] == '':
+                validated_data.pop('email')
+            instance.email = validated_data.get('email', instance.email)
+        
         if 'password' in validated_data:
             if validated_data['password'] == '':
                 validated_data.pop('password')
@@ -66,7 +86,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer, UserValidationMixi
 
     class Meta:
         model = User
-        fields = ['username', 'password', 'password2']
+        fields = ['username', 'email', 'password', 'password2']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -79,6 +99,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer, UserValidationMixi
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],
+            email=validated_data['email'],
             password=validated_data['password']
         )
         return user
