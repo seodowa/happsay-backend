@@ -94,6 +94,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer, UserValidationMixi
     def validate(self, attrs):
         # Call the validate method from UserValidationMixin
         attrs = UserValidationMixin.validate(self, attrs)
+
+        # Check if username already exists
+        if User.objects.filter(username=attrs['username']).exists():
+            raise serializers.ValidationError({"username": f"Username {attrs['username']} is already taken."})
+        
+        # Check if email already exists
+        if User.objects.filter(email=attrs['email']).exists():
+            raise serializers.ValidationError({"email": "The email is already taken."})
+        
         return super().validate(attrs)
 
     def create(self, validated_data):
@@ -123,3 +132,25 @@ class LoginSerializer(serializers.Serializer):
 
         return attrs
 
+
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        if not User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("No user is associated with this email address.")
+        return value
+    
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    password = serializers.CharField(write_only=True)
+    password2 = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+        return attrs
+    
+    def save(self, user):
+        user.password = make_password(self.validated_data['password'])
+        user.save()

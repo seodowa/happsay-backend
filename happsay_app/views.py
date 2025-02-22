@@ -1,16 +1,17 @@
-from django.http import HttpResponseRedirect
-from .serializers import UserSerializer, TodoListSerializer, UserRegistrationSerializer, LoginSerializer
+from .serializers import (UserSerializer, TodoListSerializer, 
+                          UserRegistrationSerializer, LoginSerializer,
+                          PasswordResetSerializer, PasswordResetConfirmSerializer)
 from .models import TodoList
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import login
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from django.shortcuts import redirect, render
-from rest_framework.authtoken.models import Token
+from django.core.mail import send_mail
+from django.urls import reverse
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import permissions, viewsets, status           
+from rest_framework_simplejwt.tokens import RefreshToken, UntypedToken
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework import permissions, viewsets, status
+import happsay_backend.settings as settings           
 
 
 
@@ -99,5 +100,61 @@ class LoginAPIView(APIView):
             "access": str(refresh.access_token),
             "redirect_url": "/todolist/"
         }, status=status.HTTP_200_OK)
+    
+
+class PasswordResetView(APIView):
+    """
+    API endpoint that allows users to reset their password.
+    """
+
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+        user = User.objects.get(email=email)
+
+        token = RefreshToken.for_user(user)
+
+        reset_link = request.build_absolute_uri(reverse('password_reset_confirm', kwargs={'token': str(token)}))
+
+        send_mail(
+            'Password Reset Request',
+            f'Hello {user.username}, you have requested for a password reset. Please click the link to reset your password: {reset_link}',
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False,
+        )
+
+        return Response({"message": f"Password reset link sent has been sent to {email}."}, status=status.HTTP_200_OK)
 
 
+class PasswordResetConfirmView(APIView):
+    """
+    Password Reset confirmation after the user clicks the link sent to their email.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, token):
+        try:
+            # Decode the token to get the user
+            UntypedToken(token)
+            user_id = RefreshToken(token).payload['user_id']
+            user = User.objects.get(id=user_id)
+
+        except (InvalidToken, TokenError, User.DoesNotExist):
+            return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user)
+
+        # Blacklist the token
+        try:
+            refresh_token = RefreshToken(token)
+            refresh_token.blacklist()
+        except Exception as e:
+            return Response({"error": f"Failed to blacklist token. {e}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"message": "Password has been reset."}, status=status.HTTP_200_OK)
