@@ -48,9 +48,23 @@ class TodoListViewSet(viewsets.ModelViewSet):
         """
         This view should return a list of all the todo lists
         for the currently authenticated user.
+
+        to filter by is_done, /todolist/?is_done=true
+        to filter by is_archived, /todolist/?is_archived=true
         """
+        
         user = self.request.user
-        return TodoList.objects.filter(user=user)
+        is_done = self.request.query_params.get('is_done')
+        is_archived = self.request.query_params.get('is_archived')
+
+        queryset = TodoList.objects.filter(user=user)
+
+        if is_done is not None:
+            queryset = queryset.filter(is_done=is_done.title())
+        if is_archived is not None:
+            queryset = queryset.filter(is_archived=is_archived.title())
+
+        return queryset
 
 
 class RegisterAPIView(APIView):

@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-=-u0#^=hko8e536bgil^8$kd9$g(^+3@z-q013g&xsuj+9_q@3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "http://happsay-api-env.eba-a3duzpyj.ap-southeast-2.elasticbeanstalk.com/"]
 
 
 # Application definition
@@ -81,7 +81,19 @@ WSGI_APPLICATION = "happsay_backend.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
+    'default': {
+          'ENGINE': 'django.db.backends.postgresql_psycopg2',
+          'NAME': os.environ.get('RDS_DB_NAME', 'happsay'),
+          'USER': os.environ.get('RDS_USERNAME', 'postgres'),
+          'PASSWORD': os.environ.get('RDS_PASSWORD', os.environ['db_pass']),
+          'HOST': os.environ.get('RDS_HOSTNAME', 'localhost'),
+          'PORT': os.environ.get('RDS_PORT', '5432'),
+    }
+}
+'''
+IGNORE 
+
+"default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "happsay",
         'USER': 'postgres',
@@ -89,9 +101,7 @@ DATABASES = {
         'HOST': 'localhost',  # Set to 'localhost' or your database host
         'PORT': '',           # Set to empty string for default
     }
-}
-
-
+'''
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
