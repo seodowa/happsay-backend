@@ -21,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-=-u0#^=hko8e536bgil^8$kd9$g(^+3@z-q013g&xsuj+9_q@3"
+SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]    # Set to your Django secret key
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "http://happsay-api-env.eba-a3duzpyj.ap-southeast-2.elasticbeanstalk.com/"]
+ALLOWED_HOSTS = ["127.0.0.1"]
 
 
 # Application definition
@@ -80,28 +80,29 @@ WSGI_APPLICATION = "happsay_backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-          'ENGINE': 'django.db.backends.postgresql_psycopg2',
-          'NAME': os.environ.get('RDS_DB_NAME', 'happsay'),
-          'USER': os.environ.get('RDS_USERNAME', 'postgres'),
-          'PASSWORD': os.environ.get('RDS_PASSWORD', os.environ['db_pass']),
-          'HOST': os.environ.get('RDS_HOSTNAME', 'localhost'),
-          'PORT': os.environ.get('RDS_PORT', '5432'),
+if 'RDS_DB_NAME' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ['RDS_DB_NAME'],
+            'USER': os.environ['RDS_USERNAME'],
+            'PASSWORD': os.environ['RDS_PASSWORD'],
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],
+        }
     }
-}
-'''
-IGNORE 
+else:
+    DATABASES = {
+    "default": {
+            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            "NAME": "happsay",
+            'USER': 'postgres',
+            'PASSWORD': os.environ["RDS_PASSWORD"],
+            'HOST': 'localhost',  # Set to 'localhost' or your database host
+            'PORT': '',           # Set to empty string for default
+        }
+    }
 
-"default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "happsay",
-        'USER': 'postgres',
-        'PASSWORD': os.environ["db_pass"],
-        'HOST': 'localhost',  # Set to 'localhost' or your database host
-        'PORT': '',           # Set to empty string for default
-    }
-'''
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
