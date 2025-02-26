@@ -190,6 +190,6 @@ class LogoutView(APIView):
 
             return Response({
                 "message": "Successfully logged out.",
-                "redirect_url": "/login"}, status=status.HTTP_205_RESET_CONTENT)
+                "redirect_url": "/login"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": f"Failed to blacklist token. {e}"}, status=status.HTTP_400_BAD_REQUEST)
