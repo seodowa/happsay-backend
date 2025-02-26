@@ -18,7 +18,7 @@
                 "is_archived": false,
                 "deadline": "2022-12-12T00:00:00Z"
             },
-        }
+        ]
         ```
 
 ## Login
