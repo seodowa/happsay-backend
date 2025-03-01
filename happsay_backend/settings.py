@@ -26,7 +26,7 @@ SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]    # Set to your Django secret key
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "happsay-env.eba-2bey6pik.ap-southeast-1.elasticbeanstalk.com", "54.179.46.127", "172.31.6.71"]
+ALLOWED_HOSTS = ["127.0.0.1", "happsay-backend-dev.ap-southeast-1.elasticbeanstalk.com"]
 
 
 # Application definition
