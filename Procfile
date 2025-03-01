@@ -1,1 +1,1 @@
-web: gunicorn happsay_backend.wsgi --log-file -
+web: gunicorn happsay_backend.wsgi --log-file
