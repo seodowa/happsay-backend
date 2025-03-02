@@ -36,6 +36,13 @@ class TodoListSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         return TodoList.objects.create(user=user, **validated_data)
 
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            if value == '':
+                continue
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
 class UserSerializer(serializers.ModelSerializer, UserValidationMixin):
     username = serializers.CharField(max_length=150, allow_blank=True)
@@ -55,30 +62,31 @@ class UserSerializer(serializers.ModelSerializer, UserValidationMixin):
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data['password'])  # Hash password
         validated_data.pop('password2', None)  # Remove password2 field
-
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
         if 'username' in validated_data:
             if validated_data['username'] == '':
                 validated_data.pop('username')
-            instance.username = validated_data.get('username', instance.username)
+            else:
+                instance.username = validated_data.get('username', instance.username)
         
         if 'email' in validated_data:
             if validated_data['email'] == '':
                 validated_data.pop('email')
-            instance.email = validated_data.get('email', instance.email)
+            else:
+                instance.email = validated_data.get('email', instance.email)
         
         if 'password' in validated_data:
             if validated_data['password'] == '':
                 validated_data.pop('password')
                 validated_data.pop('password2', None)  # Remove password2 field
             else:
-                validated_data['password'] = make_password(validated_data['password'])  # Hash on update
+                instance.password = make_password(validated_data['password'])  # Hash on update
                 validated_data.pop('password2', None)  # Remove password2 field
 
-        return super().update(instance, validated_data)
-
+        instance.save()
+        return instance
 
 class UserRegistrationSerializer(serializers.ModelSerializer, UserValidationMixin):
     password = serializers.CharField(style={'input_type': 'password'}, write_only=True)
