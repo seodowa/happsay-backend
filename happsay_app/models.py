@@ -9,7 +9,8 @@ class TodoList(models.Model):
     content = models.TextField()
     is_done = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
-    deadline = models.DateTimeField()
+    deadline = models.DateField()
+    
     
     class Meta:
         db_table = "todolist"

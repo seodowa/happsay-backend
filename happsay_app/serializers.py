@@ -80,10 +80,10 @@ class UserSerializer(serializers.ModelSerializer, UserValidationMixin):
         if 'password' in validated_data:
             if validated_data['password'] == '':
                 validated_data.pop('password')
-                validated_data.pop('password2', None)  # Remove password2 field
             else:
                 instance.password = make_password(validated_data['password'])  # Hash on update
-                validated_data.pop('password2', None)  # Remove password2 field
+            
+            validated_data.pop('password2', None)  # Remove password2 field
 
         instance.save()
         return instance
