@@ -1,3 +1,7 @@
+import os
+
+from django.http import HttpResponse
+from django.views import View
 from .serializers import (UserSerializer, TodoListSerializer, 
                           UserRegistrationSerializer, LoginSerializer,
                           PasswordResetSerializer, PasswordResetConfirmSerializer)
@@ -195,3 +199,14 @@ class LogoutView(APIView):
                 "redirect_url": "/login"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": f"Failed to blacklist token. {e}"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+class ZeroSSLValidationTextView(View):
+    def get(self, request, filename, *args, **kwargs):
+        if not (file_path := os.path.join(settings.BASE_DIR, "happsay_backend", "static_files", filename)):
+            return HttpResponse("File not found", status=
+                                status.HTTP_404_NOT_FOUND)
+        with open(file_path, 'r') as f:
+            content = f.read()
+        return HttpResponse(content, content_type="text/plain")

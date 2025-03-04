@@ -37,4 +37,5 @@ urlpatterns = [
     path('password-reset/', views.PasswordResetView.as_view(), name='password_reset'),
     path('reset-password/<str:token>/', views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
+    path('.well-known/pki-validation/<str:filename>/', views.ZeroSSLValidationTextView.as_view(), name='ZeroSSLValidationText'),
 ]
