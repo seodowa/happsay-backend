@@ -1,4 +1,4 @@
-happsay_venv/
+.venv/
 happsay_app/__pycache__/
 happsay_backend/__pycache__/
 
