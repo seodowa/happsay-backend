@@ -137,7 +137,7 @@ class PasswordResetView(APIView):
 
         # temporary solution to get the reset link
         #reset_link = request.build_absolute_uri(reverse('password_reset_confirm', kwargs={'token': str(token)}))
-        reset_link = f"http://localhost:5173/reset-password/{str(token)}"
+        reset_link = f"https://happsay-frontend.vercel.app/reset-password/{str(token)}"
 
         send_mail(
             'Password Reset Request',
