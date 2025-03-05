@@ -9,7 +9,6 @@ from .models import TodoList
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.urls import reverse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, UntypedToken

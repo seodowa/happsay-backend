@@ -23,7 +23,7 @@ class UserValidationMixin:
 
         # Ensure password and password2 match
         if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"error": "Password fields didn't match."})
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
         return attrs
     
 
@@ -105,11 +105,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer, UserValidationMixi
 
         # Check if username already exists
         if User.objects.filter(username=attrs['username']).exists():
-            raise serializers.ValidationError({"error": f"Username {attrs['username']} is already taken."})
+            raise serializers.ValidationError()
         
         # Check if email already exists
         if User.objects.filter(email=attrs['email']).exists():
-            raise serializers.ValidationError({"error": "The email is already taken."})
+            raise serializers.ValidationError()
         
         return super().validate(attrs)
 
@@ -146,7 +146,7 @@ class PasswordResetSerializer(serializers.Serializer):
 
     def validate_email(self, value):
         if not User.objects.filter(email=value).exists():
-            raise serializers.ValidationError({"error": "No user is associated with this email address."})
+            raise serializers.ValidationError("No user is associated with this email address.")
         return value
     
 
@@ -156,7 +156,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"error": "Password fields didn't match."})
+            raise serializers.ValidationError("Password fields didn't match.")
         return attrs
     
     def save(self, user):
