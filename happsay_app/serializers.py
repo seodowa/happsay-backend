@@ -19,7 +19,7 @@ class UserValidationMixin:
 
         # email validation
         if not email_regex.match(attrs['email']):
-            raise serializers.ValidationError({"error": "Please enter a valid email address."})
+            raise serializers.ValidationError("Please enter a valid email address.")
 
         # Ensure password and password2 match
         if attrs['password'] != attrs['password2']:
