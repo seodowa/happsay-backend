@@ -150,9 +150,10 @@ STATIC_ROOT = 'static'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Allow all origins (not recommended for production)
-
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "https://happsay-frontend.vercel.app",
+    "http://localhost:5173",
+]
 
 # Allow credentials (if needed)
 
