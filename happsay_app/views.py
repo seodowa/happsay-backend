@@ -209,3 +209,17 @@ class ZeroSSLValidationTextView(View):
         with open(file_path, 'r') as f:
             content = f.read()
         return HttpResponse(content, content_type="text/plain")
+    
+
+class ValidateTokenView(APIView):
+    def post(self, request):
+        token = request.data.get('token')
+
+        if not token:
+            return Response({'valid': False, 'message': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            UntypedToken(token)
+            return Response({'valid': True}, status=status.HTTP_200_OK)
+        except (InvalidToken, TokenError):
+            return Response({'valid': False, 'message': 'Invalid or expired token'}, status=status.HTTP_401_UNAUTHORIZED)
