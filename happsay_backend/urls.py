@@ -38,5 +38,5 @@ urlpatterns = [
     path('reset-password/<str:token>/', views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
     path('.well-known/pki-validation/<str:filename>/', views.ZeroSSLValidationTextView.as_view(), name='ZeroSSLValidationText'),
-    path('validate-token/<str:token>/', views.ValidateTokenView.as_view(), name='validate_token'),
+    path('validate-token/', views.ValidateTokenView.as_view(), name='validate_token'),
 ]
