@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken, UntypedToken
+from rest_framework_simplejwt.tokens import RefreshToken, UntypedToken, AccessToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework import permissions, viewsets, status
 import happsay_backend.settings as settings           
@@ -115,7 +115,6 @@ class LoginAPIView(APIView):
             },
             "refresh": str(refresh),
             "access": str(refresh.access_token),
-            "redirect_url": "/todolist/"
         }, status=status.HTTP_200_OK)
     
 
@@ -132,10 +131,8 @@ class PasswordResetView(APIView):
         email = serializer.validated_data['email']
         user = User.objects.get(email=email)
 
-        token = RefreshToken.for_user(user)
+        token = AccessToken.for_user(user)
 
-        # temporary solution to get the reset link
-        #reset_link = request.build_absolute_uri(reverse('password_reset_confirm', kwargs={'token': str(token)}))
         reset_link = f"https://happsay-frontend.vercel.app/reset-password/{str(token)}"
 
         send_mail(
@@ -159,7 +156,7 @@ class PasswordResetConfirmView(APIView):
         try:
             # Decode the token to get the user
             UntypedToken(token)
-            user_id = RefreshToken(token).payload['user_id']
+            user_id = AccessToken(token).payload['user_id']
             user = User.objects.get(id=user_id)
 
         except (InvalidToken, TokenError, User.DoesNotExist):
@@ -168,14 +165,7 @@ class PasswordResetConfirmView(APIView):
         serializer = PasswordResetConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(user)
-
-        # Blacklist the token
-        try:
-            refresh_token = RefreshToken(token)
-            refresh_token.blacklist()
-        except Exception as e:
-            return Response({"error": f"Failed to blacklist token. {e}"}, status=status.HTTP_400_BAD_REQUEST)
-
+        
         return Response({"message": "Password has been reset."}, status=status.HTTP_200_OK)
 
 
