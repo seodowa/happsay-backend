@@ -109,7 +109,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer, UserValidationMixi
         
         # Check if email already exists
         if User.objects.filter(email=attrs['email']).exists():
-            raise serializers.ValidationError()
+            raise serializers.ValidationError("A user with this email address already exists.")
         
         return super().validate(attrs)
 
