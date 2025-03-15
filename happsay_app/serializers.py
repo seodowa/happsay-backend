@@ -11,7 +11,7 @@ class UserValidationMixin:
         attrs['username'] = attrs['username'].strip()
         attrs['email'] = attrs['email'].strip()
         attrs['password'] = attrs['password'].strip()
-        attrs['password2'] = attrs['password2'].strip()
+        attrs['confirm_password'] = attrs['confirm_password'].strip()
 
         email_regex = re.compile(
         r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
@@ -21,8 +21,8 @@ class UserValidationMixin:
         if not email_regex.match(attrs['email']):
             raise serializers.ValidationError("Please enter a valid email address.")
 
-        # Ensure password and password2 match
-        if attrs['password'] != attrs['password2']:
+        # Ensure password and confirm_password match
+        if attrs['password'] != attrs['confirm_password']:
             raise serializers.ValidationError({"password": "Password fields didn't match."})
         return attrs
     
@@ -48,11 +48,11 @@ class UserSerializer(serializers.ModelSerializer, UserValidationMixin):
     username = serializers.CharField(max_length=150, allow_blank=True)
     email = serializers.EmailField(allow_blank=True)
     password = serializers.CharField(write_only=True, allow_blank=True, style={'input_type': 'password'})
-    password2 = serializers.CharField(write_only=True, allow_blank=True, style={'input_type': 'password'})
+    confirm_password = serializers.CharField(write_only=True, allow_blank=True, style={'input_type': 'password'})
     
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password', 'password2']
+        fields = ['id', 'username', 'email', 'password', 'confirm_password']
 
     def validate(self, attrs):
         # Call the validate method from UserValidationMixin
@@ -61,7 +61,7 @@ class UserSerializer(serializers.ModelSerializer, UserValidationMixin):
 
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data['password'])  # Hash password
-        validated_data.pop('password2', None)  # Remove password2 field
+        validated_data.pop('confirm_password', None)  # Remove confirm_password field
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
@@ -80,21 +80,21 @@ class UserSerializer(serializers.ModelSerializer, UserValidationMixin):
         if 'password' in validated_data:
             if validated_data['password'] == '':
                 validated_data.pop('password')
-                validated_data.pop('password2', None)  # Remove password2 field
+                validated_data.pop('confirm_password', None)  # Remove confirm_password field
             else:
                 instance.password = make_password(validated_data['password'])  # Hash on update
-                validated_data.pop('password2', None)  # Remove password2 field
+                validated_data.pop('confirm_password', None)  # Remove confirm_password field
 
         instance.save()
         return instance
 
 class UserRegistrationSerializer(serializers.ModelSerializer, UserValidationMixin):
     password = serializers.CharField(style={'input_type': 'password'}, write_only=True)
-    password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
+    confirm_password = serializers.CharField(style={'input_type': 'password'}, write_only=True)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'password2']
+        fields = ['username', 'email', 'password', 'confirm_password']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -152,10 +152,10 @@ class PasswordResetSerializer(serializers.Serializer):
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
-    password2 = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
+        if attrs['password'] != attrs['confirm_password']:
             raise serializers.ValidationError("Password fields didn't match.")
         return attrs
     

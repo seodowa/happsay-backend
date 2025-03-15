@@ -64,7 +64,7 @@ class RegistrationTests(APITestCase):
     def test_valid_registration(self):
         response = self.client.post('/register/', {'username': 'testuser', 'email': 'test@test.com', 
                                                     'password': 'testpass123',
-                                                    'password2': 'testpass123'})
+                                                    'confirm_password': 'testpass123'})
         self.assertEqual(response.status_code, 201)
 
     
@@ -75,16 +75,16 @@ class RegistrationTests(APITestCase):
         
         response = self.client.post('/register/', {'username': 'testuser', 'email': 'test@test.com',
                                                     'password': 'testpass123',
-                                                    'password2': 'wrong'})
+                                                    'confirm_password': 'wrong'})
         self.assertEqual(response.status_code, 400)
 
         response = self.client.post('/register/', {'username': 'testuser', 'email': 'test', 
                                                     'password': 'testpass123',
-                                                    'password2': 'testpass123'})
+                                                    'confirm_password': 'testpass123'})
         self.assertEqual(response.status_code, 400)
 
         response = self.client.post('/register/', {'username': '', 'email': '', 'password': '',
-                                                    'password2': ''})
+                                                    'confirm_password': ''})
         self.assertEqual(response.status_code, 400)
 
 
