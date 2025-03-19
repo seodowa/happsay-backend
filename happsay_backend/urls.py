@@ -20,6 +20,7 @@ from django.urls import path, include
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenRefreshView
 from happsay_app import views
+from django.views.generic import RedirectView
 
 
 router = routers.DefaultRouter()
@@ -39,4 +40,5 @@ urlpatterns = [
     path('logout/', views.LogoutView.as_view(), name='logout'),
     path('.well-known/pki-validation/<str:filename>/', views.ZeroSSLValidationTextView.as_view(), name='ZeroSSLValidationText'),
     path('validate-token/', views.ValidateTokenView.as_view(), name='validate_token'),
+    path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),
 ]
