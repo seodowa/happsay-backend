@@ -34,7 +34,7 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")    # Set to your Django secret key
 DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = ["127.0.0.1", 
-                 "happsay-backend-dev.ap-southeast-1.elasticbeanstalk.com", 
+                 "https://happsay-backend.vercel.app/", 
                  "122.248.222.135",
                  ]
 
