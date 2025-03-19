@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 if os.getenv("VERCEL") is None:
     load_dotenv()
-    
+
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
@@ -41,6 +41,7 @@ ALLOWED_HOSTS = ["127.0.0.1",
                  "https://happsay-backend.vercel.app/", 
                  "122.248.222.135",
                  "happsay-backend-2241b38si-seodowas-projects.vercel.app",
+                 "happsay-backend-t6uw2yg68-seodowas-projects.vercel.app",
                  ]
 
 
