@@ -37,12 +37,11 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")    # Set to your Django secret key
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = ["127.0.0.1", 
-                 "https://happsay-backend.vercel.app/", 
-                 "122.248.222.135",
-                 "happsay-backend-2241b38si-seodowas-projects.vercel.app",
-                 "happsay-backend-t6uw2yg68-seodowas-projects.vercel.app",
-                 ]
+ALLOWED_HOSTS = [
+    "127.0.0.1", 
+    "122.248.222.135",
+    ".vercel.app", 
+]
 
 
 # Application definition
