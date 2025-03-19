@@ -11,8 +11,14 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import datetime
-from pathlib import Path
+import environ
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
+env = environ.Env()
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,10 +28,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]    # Set to your Django secret key
+SECRET_KEY = env("DJANGO_SECRET_KEY")    # Set to your Django secret key
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = ["127.0.0.1", 
                  "happsay-backend-dev.ap-southeast-1.elasticbeanstalk.com", 
@@ -86,28 +92,9 @@ WSGI_APPLICATION = "happsay_backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-if 'RDS_HOSTNAME' in os.environ:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.environ['RDS_DB_NAME'],
-            'USER': os.environ['RDS_USERNAME'],
-            'PASSWORD': os.environ['RDS_PASSWORD'],
-            'HOST': os.environ['RDS_HOSTNAME'],
-            'PORT': os.environ['RDS_PORT'],
-        }
-    }
-else:
-    DATABASES = {
-    "default": {
-            "ENGINE": "django.db.backends.postgresql_psycopg2",
-            "NAME": "happsay",
-            'USER': 'postgres',
-            'PASSWORD': os.environ["RDS_PASSWORD"],
-            'HOST': 'localhost',  # Set to 'localhost' or your database host
-            'PORT': '',           # Set to empty string for default
-        }
-    }
+DATABASES = {
+    'default': env.db(),
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

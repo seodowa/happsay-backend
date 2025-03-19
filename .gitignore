@@ -1,6 +1,8 @@
 .venv/
 happsay_app/__pycache__/
 happsay_backend/__pycache__/
+.env
+
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
