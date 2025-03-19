@@ -17,11 +17,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, UntypedToken, AccessToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework import permissions, viewsets, status
-from dotenv import load_dotenv
 
-load_dotenv()
-env = environ.Env()
-environ.Env.read_env()
 
 # Create your views here.
 
