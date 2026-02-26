@@ -1,0 +1,22 @@
+name: Keep Supabase Alive
+on:
+  schedule:
+    - cron: '0 0 * * 1,4' # Runs at midnight every Monday and Thursday
+  workflow_dispatch:
+
+jobs:
+  ping_supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Database Heartbeat
+        run: |
+          status_code=$(curl -s -o /dev/null -w "%{http_code}" -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/todolist?select=id&limit=1" \
+          -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+          
+          if [ "$status_code" -ne 200 ]; then
+            echo "Ping failed with status $status_code"
+            exit 1
+          else
+            echo "Ping successful!"
+          fi
