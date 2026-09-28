@@ -134,7 +134,7 @@ class PasswordResetView(APIView):
 
         token = AccessToken.for_user(user)
 
-        reset_link = f"https://happsay-frontend.vercel.app/reset-password/{str(token)}"
+        reset_link = f"https://happsay.vercel.app/reset-password/{str(token)}"
 
         send_mail(
             'Password Reset Request',
